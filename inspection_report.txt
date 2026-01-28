@@ -1,0 +1,172 @@
+
+==================== Inspecting Transaction.xlsx ====================
+Shape: (52930, 7)
+Columns:
+['TransactionId', 'UserId', 'VisitYear', 'VisitMonth', 'VisitMode', 'AttractionId', 'Rating']
+Missing Values:
+No missing values.
+Data Types:
+TransactionId    int64
+UserId           int64
+VisitYear        int64
+VisitMonth       int64
+VisitMode        int64
+AttractionId     int64
+Rating           int64
+dtype: object
+Head:
+   TransactionId  ...  Rating
+0              3  ...       5
+1              8  ...       5
+2              9  ...       5
+
+[3 rows x 7 columns]
+
+==================== Inspecting User.xlsx ====================
+Shape: (33530, 5)
+Columns:
+['UserId', 'ContinentId', 'RegionId', 'CountryId', 'CityId']
+Missing Values:
+CityId    4
+dtype: int64
+Data Types:
+UserId           int64
+ContinentId      int64
+RegionId         int64
+CountryId        int64
+CityId         float64
+dtype: object
+Head:
+   UserId  ...  CityId
+0      14  ...   220.0
+1      16  ...  3098.0
+2      20  ...  4303.0
+
+[3 rows x 5 columns]
+
+==================== Inspecting City.xlsx ====================
+Shape: (9143, 3)
+Columns:
+['CityId', 'CityName', 'CountryId']
+Missing Values:
+CityName    1
+dtype: int64
+Data Types:
+CityId       int64
+CityName       str
+CountryId    int64
+dtype: object
+Head:
+   CityId  ... CountryId
+0       0  ...         0
+1       1  ...         1
+2       2  ...         1
+
+[3 rows x 3 columns]
+
+==================== Inspecting Type.xlsx ====================
+Shape: (17, 2)
+Columns:
+['AttractionTypeId', 'AttractionType']
+Missing Values:
+No missing values.
+Data Types:
+AttractionTypeId    int64
+AttractionType        str
+dtype: object
+Head:
+   AttractionTypeId AttractionType
+0                 2  Ancient Ruins
+1                10        Ballets
+2                13        Beaches
+
+==================== Inspecting Mode.xlsx ====================
+Shape: (6, 2)
+Columns:
+['VisitModeId', 'VisitMode']
+Missing Values:
+No missing values.
+Data Types:
+VisitModeId    int64
+VisitMode        str
+dtype: object
+Head:
+   VisitModeId VisitMode
+0            0         -
+1            1  Business
+2            2   Couples
+
+==================== Inspecting Continent.xlsx ====================
+Shape: (6, 2)
+Columns:
+['ContinentId', 'Continent']
+Missing Values:
+No missing values.
+Data Types:
+ContinentId    int64
+Continent        str
+dtype: object
+Head:
+   ContinentId Continent
+0            0         -
+1            1    Africa
+2            2   America
+
+==================== Inspecting Country.xlsx ====================
+Shape: (165, 3)
+Columns:
+['CountryId', 'Country', 'RegionId']
+Missing Values:
+No missing values.
+Data Types:
+CountryId    int64
+Country        str
+RegionId     int64
+dtype: object
+Head:
+   CountryId  ... RegionId
+0          0  ...        0
+1          1  ...        1
+2          2  ...        1
+
+[3 rows x 3 columns]
+
+==================== Inspecting Region.xlsx ====================
+Shape: (22, 3)
+Columns:
+['Region', 'RegionId', 'ContinentId']
+Missing Values:
+No missing values.
+Data Types:
+Region           str
+RegionId       int64
+ContinentId    int64
+dtype: object
+Head:
+           Region  ...  ContinentId
+0               -  ...            0
+1  Central Africa  ...            1
+2     East Africa  ...            1
+
+[3 rows x 3 columns]
+
+==================== Inspecting Item.xlsx ====================
+Shape: (30, 5)
+Columns:
+['AttractionId', 'AttractionCityId', 'AttractionTypeId', 'Attraction', 'AttractionAddress']
+Missing Values:
+No missing values.
+Data Types:
+AttractionId         int64
+AttractionCityId     int64
+AttractionTypeId     int64
+Attraction             str
+AttractionAddress      str
+dtype: object
+Head:
+   AttractionId  ...                               AttractionAddress
+0           369  ...                                            Kuta
+1           481  ...  Semenanjung Nusa Dua, Nusa Dua 80517 Indonesia
+2           640  ...         Jl. Monkey Forest, Ubud 80571 Indonesia
+
+[3 rows x 5 columns]
