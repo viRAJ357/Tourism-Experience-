@@ -18,7 +18,6 @@ st.markdown("""
         background: linear-gradient(135deg, #1e0533 0%, #11032b 100%);
         color: #ffffff;
     }
-    
     /* Glassmorphism Cards */
     .css-1r6slb0, .css-12oz5g7, .stMetric {
         background: rgba(255, 255, 255, 0.05);
@@ -28,7 +27,6 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
     /* Headers */
     h1, h2, h3 {
         font-family: 'Helvetica Neue', sans-serif;
@@ -36,7 +34,6 @@ st.markdown("""
         text-align: center;
         text-shadow: 0 0 10px rgba(100, 200, 255, 0.5);
     }
-    
     /* Buttons */
     .stButton>button {
         background: linear-gradient(45deg, #FF4B2B, #FF416C);
@@ -51,37 +48,39 @@ st.markdown("""
         transform: scale(1.05);
         box-shadow: 0 0 20px rgba(255, 65, 108, 0.5);
     }
-    
-    /* Sidebar */
-    .css-1d391kg {
-        background: rgba(0, 0, 0, 0.2);
-    }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Paths ---
+# --- 🛠️ CRITICAL PATH FIX ---
+# Hum 'app' folder se ek step peeche (Root) ja rahe hain
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODELS_DIR = os.path.join(BASE_DIR, "models")
-DATA_PATH = os.path.join(BASE_DIR, "data", "processed", "master_data.csv")
+
+# Files seedha Root me hain, isliye folder names hata diye
+MODELS_DIR = BASE_DIR 
+DATA_PATH = os.path.join(BASE_DIR, "master_data.csv")
 
 # --- Helper Functions ---
 @st.cache_data
 def load_data():
-    if os.path.exists(DATA_PATH):
-        return pd.read_csv(DATA_PATH)
-    return None
+    try:
+        if os.path.exists(DATA_PATH):
+            return pd.read_csv(DATA_PATH)
+        else:
+            return None
+    except Exception as e:
+        return None
 
 def load_lottieurl(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
+    try:
+        r = requests.get(url)
+        if r.status_code != 200:
+            return None
+        return r.json()
+    except:
         return None
-    return r.json()
 
 # Load Assets
 df = load_data()
-lottie_travel = load_lottieurl("https://lottie.host/embed/9860b21e-d412-4c28-981f-79ec25256567/4w8J6X9G3I.json") # Updated URL or keep distinct
-# Use a public stable URL or handle failure
-# Let's use a safe check
 lottie_travel = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_wys2hmsq.json")
 lottie_analysis = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_t2xzjwx8.json")
 
@@ -95,7 +94,8 @@ st.sidebar.info("Tourism Experience Analytics v2.0\nEnhanced with AI & Premium U
 
 # --- Main App ---
 if df is None:
-    st.error("Data processing incomplete. Please wait.")
+    st.error(f"❌ Data file not found at: {DATA_PATH}")
+    st.warning("Please upload 'master_data.csv' to the GitHub Repository Root.")
 else:
     # --- DASHBOARD ---
     if page == "Dashboard":
@@ -107,13 +107,15 @@ else:
             if lottie_travel:
                 st_lottie(lottie_travel, height=200, key="travel")
             else:
-                st.info("✈️") # Fallback emoji if lottie fails
+                st.info("✈️")
 
         # Metrics
         m1, m2, m3 = st.columns(3)
-        m1.metric("Total Users", df['UserId'].nunique(), "+5%")
+        if 'UserId' in df.columns:
+            m1.metric("Total Users", df['UserId'].nunique(), "+5%")
         m2.metric("Total Transactions", len(df), "+12%")
-        m3.metric("Avg Rating", f"{df['Rating'].mean():.2f}", "⭐")
+        if 'Rating' in df.columns:
+            m3.metric("Avg Rating", f"{df['Rating'].mean():.2f}", "⭐")
 
         st.markdown("---")
         
@@ -121,9 +123,10 @@ else:
         c1, c2 = st.columns(2)
         with c1:
             st.subheader("Ratings Distribution")
-            fig = px.histogram(df, x="Rating", nbins=5, color_discrete_sequence=['#FF4B2B'], template="plotly_dark")
-            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig, use_container_width=True)
+            if 'Rating' in df.columns:
+                fig = px.histogram(df, x="Rating", nbins=5, color_discrete_sequence=['#FF4B2B'], template="plotly_dark")
+                fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+                st.plotly_chart(fig, use_container_width=True)
             
         with c2:
             st.subheader("Top Visit Modes")
@@ -134,18 +137,10 @@ else:
                 fig2.update_layout(paper_bgcolor="rgba(0,0,0,0)")
                 st.plotly_chart(fig2, use_container_width=True)
 
-        if 'Country' in df.columns:
-            st.subheader("Top User Origins")
-            top_countries = df['Country'].value_counts().head(10).reset_index()
-            top_countries.columns = ['Country', 'Users']
-            fig3 = px.bar(top_countries, x='Users', y='Country', orientation='h', color='Users', color_continuous_scale='Bluered')
-            fig3.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig3, use_container_width=True)
-
     # --- PREDICT RATING ---
     elif page == "Predict Rating":
         st.title("AI Rating Predictor")
-        st.write("Predict how a user will rate an attraction using Gradient Boosting.")
+        st.write("Predict how a user will rate an attraction.")
         
         try:
             reg_model = joblib.load(os.path.join(MODELS_DIR, "regression_model.pkl"))
@@ -172,21 +167,17 @@ else:
                         'CountryId': country_id, 'CityId': city_id, 'AttractionCityId': city_id
                     }
                     input_df = pd.DataFrame([input_data])
-                    # Align cols
                     for c in reg_features:
                         if c not in input_df.columns: input_df[c] = 0
                     input_df = input_df[reg_features]
                     
-                    # Scale
                     input_scaled = reg_scaler.transform(input_df)
                     pred = reg_model.predict(input_scaled)[0]
                     
                     st.success(f"Predicted Rating: {pred:.2f} / 5.0")
                     st.progress(min(pred/5, 1.0))
         except Exception as e:
-            st.warning("Model not ready yet. Please ensure training is complete.")
-            if lottie_analysis:
-                st_lottie(lottie_analysis, height=150)
+            st.warning(f"Model error: {e}")
 
     # --- PREDICT VISIT MODE ---
     elif page == "Predict Visit Mode":
@@ -217,15 +208,12 @@ else:
                     pred = clf_model.predict(input_scaled)[0]
                     st.balloons()
                     st.success(f"Predicted Visit Mode ID: **{pred}**")
-                    
-        except:
-             st.info("Models are training... Check back soon!")
+        except Exception as e:
+             st.info(f"Model error: {e}")
 
     # --- RECOMMENDATIONS ---
     elif page == "Recommendations":
         st.title("Personalized for You")
-        st.markdown("Using AI to find your next adventure.")
-        
         try:
             knn = joblib.load(os.path.join(MODELS_DIR, "recommendation_knn.pkl"))
             matrix = joblib.load(os.path.join(MODELS_DIR, "user_item_matrix.pkl"))
@@ -239,15 +227,14 @@ else:
                         st.subheader("People like you visited:")
                         cols = st.columns(4)
                         for i, col in enumerate(cols):
-                            # Placeholder logic for display
                             col.markdown(f"**Attraction #{idxs[0][i]}**")
-                            col.image("https://source.unsplash.com/random/200x150/?travel,landmark", use_column_width=True)
-                            col.caption("Highly Rated")
+                            col.info("Recommended")
                     else:
                         st.warning("New user? Here are popular spots!")
-                        top5 = df['AttractionId'].value_counts().head(5).index
-                        st.write(f"Trending: {list(top5)}")
+                        if 'AttractionId' in df.columns:
+                             top5 = df['AttractionId'].value_counts().head(5).index.tolist()
+                             st.write(f"Trending: {top5}")
                 except:
                     st.error("Invalid ID format")
-        except:
-            st.error("Recommendation engine offline.")
+        except Exception as e:
+            st.error(f"Engine offline: {e}")
